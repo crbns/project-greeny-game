@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Snake Game</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background: #fff0d6;
+      }
+      canvas {
+        border: 5px solid #c0d4ab;
+        border-radius: 15px;
+      }
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 240, 214, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+      }
+      .message {
+        background: #ffffff;
+        color: #000000;
+        padding: 20px;
+        border: 5px solid #c0d4ab;
+        border-radius: 10px;
+        text-align: center;
+        font-family: Arial, sans-serif;
+      }
+      #continueBtn {
+        background: #c0d4ab;
+        color: #000000;
+        border: none;
+        padding: 10px 20px;
+        margin-top: 10px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      #continueBtn:hover {
+        background: #b0c49b;
+      }
+      #yesBtn,
+      #noBtn {
+        background: #c0d4ab;
+        color: #000000;
+        border: none;
+        padding: 10px 20px;
+        margin: 0 10px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      #yesBtn:hover,
+      #noBtn:hover {
+        background: #b0c49b;
+      }
+      .theme-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+      .theme-btn {
+        background: #d1e8ba;
+        color: #000000;
+        border: none;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        min-width: 120px;
+        transition: background 0.2s;
+      }
+      .theme-btn:hover {
+        background: #b0c49b;
+      }
+      .theme-icon {
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
+      }
+      .theme-btn span {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="gameCanvas" width="900" height="900"></canvas>
+    <div id="startScreenOverlay" class="overlay">
+      <div class="message">
+        <h2>Choose Your Snake</h2>
+        <div class="theme-buttons">
+          <button id="trashBtn" class="theme-btn">
+            <img src="assets/trash.png" alt="Trash" class="theme-icon" />
+            <span>Trash</span>
+          </button>
+          <button id="recyclingBtn" class="theme-btn">
+            <img
+              src="assets/recycling.png"
+              alt="Recycling"
+              class="theme-icon"
+            />
+            <span>Recycling</span>
+          </button>
+          <button id="compostBtn" class="theme-btn">
+            <img src="assets/compost.png" alt="Compost" class="theme-icon" />
+            <span>Compost</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="gameOverOverlay" class="overlay" style="display: none">
+      <div class="message">
+        <p id="gameOverMessage">Game Over!</p>
+        <p>Final Score: <span id="finalScore"></span></p>
+        <button id="continueBtn">Continue</button>
+      </div>
+    </div>
+    <div id="popupOverlay" class="overlay" style="display: none">
+      <div class="message">
+        <p id="popupQuestion"></p>
+        <button id="yesBtn">Yes</button>
+        <button id="noBtn">No</button>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
