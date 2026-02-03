@@ -159,7 +159,7 @@ let smoothSnake = snake.map((segment) => ({
   targetY: segment.y,
 }));
 let direction = { x: 1, y: 0 };
-let nextDirection = null;
+let inputQueue = [];
 let foods = [];
 let score = 0;
 let lives = 3;
@@ -449,15 +449,12 @@ function update(deltaTime) {
     }
   }
 
-  if (performance.now() - lastMoveTime >= moveInterval) {
-    lastMoveTime = performance.now();
-    // Apply queued direction change from buffer
-    if (inputBuffer.length > 0) {
-      direction = inputBuffer.shift();
-    } else if (nextDirection) {
-      direction = nextDirection;
-      nextDirection = null;
-    }
+    if (performance.now() - lastMoveTime >= moveInterval) {
+        lastMoveTime = performance.now();
+        // Consume the next queued direction if available
+        if (inputQueue.length > 0) {
+            direction = inputQueue.shift();
+        }
     let oldTail = snake[snake.length - 1];
     const head = {
       x: snake[0].x + direction.x,
@@ -602,9 +599,8 @@ continueBtn.addEventListener("click", () => {
     targetY: segment.y,
   }));
   direction = { x: 1, y: 0 };
-  nextDirection = null;
-  inputBuffer.length = 0;
-  foods = [];
+    inputQueue = [];
+    foods = [];
   score = 0;
   lives = 3;
   eating = false;
@@ -629,78 +625,76 @@ yesBtn.addEventListener("click", () => {
     gameOverMessageEl.textContent = "Game Over";
     finalScoreEl.textContent = score;
     overlay.style.display = "flex";
-  } else {
-    if (showFeedbackDuringCountdown) {
-      feedbackTimer = 3;
-      gameState = "feedback";
-      feedbackPopup.style.display = "flex";
     } else {
-      countdownTimer = 3;
-      gameState = "countdown";
+        if (showFeedbackDuringCountdown) {
+            feedbackTimer = 3;
+            gameState = "feedback";
+            feedbackPopup.style.display = "flex";
+        } else {
+            countdownTimer = 3;
+            gameState = "countdown";
+        }
     }
-    inputBuffer.length = 0;
-  }
-  popupOverlay.style.display = "none";
+    popupOverlay.style.display = "none";
 });
 
 noBtn.addEventListener("click", () => {
-  foods = getRandomFoods();
-  const wasCorrect = noBtn.dataset.correct === "true";
-  if (!wasCorrect) {
-    lives--;
-    showFeedbackDuringCountdown = true;
-    feedbackMessageEl.textContent = `That item belongs in the ${lastCorrectGamemode} bin!`;
-    lifeLostMessageEl.textContent = "You lost a life!";
-  }
-  if (lives <= 0) {
-    gameState = "gameover";
-    gameOverMessageEl.textContent = "Game Over";
-    finalScoreEl.textContent = score;
-    overlay.style.display = "flex";
-  } else {
-    if (showFeedbackDuringCountdown) {
-      feedbackTimer = 3;
-      gameState = "feedback";
-      feedbackPopup.style.display = "flex";
-    } else {
-      countdownTimer = 3;
-      gameState = "countdown";
+    foods = getRandomFoods();
+    const wasCorrect = noBtn.dataset.correct === "true";
+    if (!wasCorrect) {
+        lives--;
+        showFeedbackDuringCountdown = true;
+        feedbackMessageEl.textContent = `That item belongs in the ${lastCorrectGamemode} bin!`;
+        lifeLostMessageEl.textContent = "You lost a life!";
     }
-    inputBuffer.length = 0;
-  }
-  popupOverlay.style.display = "none";
+    if (lives <= 0) {
+        gameState = "gameover";
+        gameOverMessageEl.textContent = "Game Over";
+        finalScoreEl.textContent = score;
+        overlay.style.display = "flex";
+    } else {
+        if (showFeedbackDuringCountdown) {
+            feedbackTimer = 3;
+            gameState = "feedback";
+            feedbackPopup.style.display = "flex";
+        } else {
+            countdownTimer = 3;
+            gameState = "countdown";
+        }
+    }
+    popupOverlay.style.display = "none";
 });
 
-const inputBuffer = [];
-const MAX_BUFFER_SIZE = 3;
-
 document.addEventListener("keydown", (e) => {
-  if (gameState !== "playing") return;
+    if (gameState !== "playing") return;
 
-  let newDirection = null;
-  if (e.key === "ArrowUp") newDirection = { x: 0, y: -1 };
-  else if (e.key === "ArrowDown") newDirection = { x: 0, y: 1 };
-  else if (e.key === "ArrowLeft") newDirection = { x: -1, y: 0 };
-  else if (e.key === "ArrowRight") newDirection = { x: 1, y: 0 };
+    let newDirection = null;
+    if (e.key === "ArrowUp") newDirection = { x: 0, y: -1 };
+    else if (e.key === "ArrowDown") newDirection = { x: 0, y: 1 };
+    else if (e.key === "ArrowLeft") newDirection = { x: -1, y: 0 };
+    else if (e.key === "ArrowRight") newDirection = { x: 1, y: 0 };
 
-  if (!newDirection) return;
+    if (!newDirection) return;
 
-  e.preventDefault();
+    e.preventDefault();
 
-  const lastDir =
-    inputBuffer.length > 0
-      ? inputBuffer[inputBuffer.length - 1]
-      : nextDirection || direction;
+    // Get the last direction in the queue, or current direction
+    const lastDir = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : direction;
 
-  if (newDirection.x === -lastDir.x && newDirection.y === -lastDir.y) {
-    return;
-  }
-
-  if (newDirection.x !== lastDir.x || newDirection.y !== lastDir.y) {
-    if (inputBuffer.length < MAX_BUFFER_SIZE) {
-      inputBuffer.push(newDirection);
+    // Prevent 180-degree turns
+    if (newDirection.x === -lastDir.x && newDirection.y === -lastDir.y) {
+        return;
     }
-  }
+
+    // Prevent duplicate directions
+    if (newDirection.x === lastDir.x && newDirection.y === lastDir.y) {
+        return;
+    }
+
+    // Only buffer ONE input (Google Snake style)
+    if (inputQueue.length < 1) {
+        inputQueue.push(newDirection);
+    }
 });
 
 let lastUpdateTime = 0;
@@ -724,10 +718,9 @@ function gameLoop(timestamp) {
     countdownTimer -= deltaTime;
     draw();
     if (countdownTimer <= 0) {
-      gameState = "playing";
-      lastMoveTime = performance.now();
-      inputBuffer.length = 0;
-      showFeedbackDuringCountdown = false;
+        gameState = "playing";
+        lastMoveTime = performance.now();
+        showFeedbackDuringCountdown = false;
     }
   } else if (gameState === "paused") {
     draw();
