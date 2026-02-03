@@ -21,7 +21,6 @@ const foodTypes = [
   "plastic_utensil",
   "broken_mug",
   "candy_wrapper",
-  "disposable_cup",
   "empty_bag_of_chips",
   "gloves",
   "pen",
@@ -74,7 +73,6 @@ const foodIconPaths = {
   plastic_utensil: "assets/icons/trash/plastic_utensil_icon_copy.png",
   broken_mug: "assets/icons/trash/broken_mug.png",
   candy_wrapper: "assets/icons/trash/candy_wrapper.png",
-  disposable_cup: "assets/icons/trash/disposable_cup.png",
   empty_bag_of_chips: "assets/icons/trash/empty_bag_of_chips_png.png",
   gloves: "assets/icons/trash/gloves_png.png",
   pen: "assets/icons/trash/pen_png.png",
@@ -120,7 +118,6 @@ const foodDisplayNames = {
   plastic_utensil: "Plastic Utensil",
   broken_mug: "Broken Mug",
   candy_wrapper: "Candy Wrapper",
-  disposable_cup: "Disposable Cup",
   empty_bag_of_chips: "Empty Bag of Chips",
   gloves: "Gloves",
   pen: "Pen",
@@ -159,8 +156,11 @@ let eatProgress = 0;
 let eatenIndex = -1;
 
 let countdownTimer = 0;
+let feedbackTimer = 0;
 const eatDuration = 0.2;
 let gameState = "start";
+let lastCorrectGamemode = null;
+let showFeedbackDuringCountdown = false;
 let snakeColor = "#4674E9";
 let currentGamemode = "";
 const overlay = document.getElementById("gameOverOverlay");
@@ -175,6 +175,12 @@ const startScreenOverlay = document.getElementById("startScreenOverlay");
 const trashBtn = document.getElementById("trashBtn");
 const recyclingBtn = document.getElementById("recyclingBtn");
 const compostBtn = document.getElementById("compostBtn");
+const winConditionDisplay = document.getElementById("winConditionDisplay");
+const feedbackPopup = document.getElementById("feedbackPopup");
+const feedbackMessageEl = document.getElementById("feedbackMessage");
+const lifeLostMessageEl = document.getElementById("lifeLostMessage");
+
+winConditionDisplay.textContent = winCondition;
 
 /**
  * Generates a random food position that doesn't overlap with the snake
@@ -205,7 +211,6 @@ function isCorrectFood(name, gamemode) {
       "plastic_utensil",
       "broken_mug",
       "candy_wrapper",
-      "disposable_cup",
       "empty_bag_of_chips",
       "gloves",
       "pen",
@@ -388,6 +393,16 @@ function draw() {
     );
     ctx.textAlign = "left";
   }
+  if (gameState === "feedback") {
+    ctx.font = "40px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(
+      Math.ceil(feedbackTimer),
+      canvas.width / 2,
+      canvas.height / 2,
+    );
+    ctx.textAlign = "left";
+  }
 }
 
 const moveSpeed = 1 / (moveInterval / 1000);
@@ -548,6 +563,8 @@ function showPopup(food) {
   let correctGamemodeForFood = allGamemodes.find((g) =>
     isCorrectFood(food.name, g),
   );
+  lastCorrectGamemode = correctGamemodeForFood;
+  showFeedbackDuringCountdown = false;
   popupQuestionEl.textContent = `You ate ${foodDisplayNames[food.name] || food.name}. Which of the other two snakes (${otherGamemodes[0]} or ${otherGamemodes[1]}) would this food be correct for?`;
   yesBtn.textContent = otherGamemodes[0];
   noBtn.textContent = otherGamemodes[1];
@@ -565,6 +582,8 @@ function startGame() {
 
 continueBtn.addEventListener("click", () => {
   overlay.style.display = "none";
+  feedbackPopup.style.display = "none";
+  showFeedbackDuringCountdown = false;
   startScreenOverlay.style.display = "flex";
   gameState = "start";
   snake = getInitialSnake();
@@ -584,13 +603,18 @@ continueBtn.addEventListener("click", () => {
   eatProgress = 0;
   eatenIndex = -1;
   countdownTimer = 0;
+  feedbackTimer = 0;
   lastMoveTime = 0;
 });
 
 yesBtn.addEventListener("click", () => {
   foods = getRandomFoods();
-  if (yesBtn.dataset.correct !== "true") {
+  const wasCorrect = yesBtn.dataset.correct === "true";
+  if (!wasCorrect) {
     lives--;
+    showFeedbackDuringCountdown = true;
+    feedbackMessageEl.textContent = `That item belongs in the ${lastCorrectGamemode} bin!`;
+    lifeLostMessageEl.textContent = "You lost a life!";
   }
   if (lives <= 0) {
     gameState = "gameover";
@@ -598,8 +622,14 @@ yesBtn.addEventListener("click", () => {
     finalScoreEl.textContent = score;
     overlay.style.display = "flex";
   } else {
-    countdownTimer = 3;
-    gameState = "countdown";
+    if (showFeedbackDuringCountdown) {
+      feedbackTimer = 3;
+      gameState = "feedback";
+      feedbackPopup.style.display = "flex";
+    } else {
+      countdownTimer = 3;
+      gameState = "countdown";
+    }
     inputBuffer.length = 0;
   }
   popupOverlay.style.display = "none";
@@ -607,8 +637,12 @@ yesBtn.addEventListener("click", () => {
 
 noBtn.addEventListener("click", () => {
   foods = getRandomFoods();
-  if (noBtn.dataset.correct !== "true") {
+  const wasCorrect = noBtn.dataset.correct === "true";
+  if (!wasCorrect) {
     lives--;
+    showFeedbackDuringCountdown = true;
+    feedbackMessageEl.textContent = `That item belongs in the ${lastCorrectGamemode} bin!`;
+    lifeLostMessageEl.textContent = "You lost a life!";
   }
   if (lives <= 0) {
     gameState = "gameover";
@@ -616,8 +650,14 @@ noBtn.addEventListener("click", () => {
     finalScoreEl.textContent = score;
     overlay.style.display = "flex";
   } else {
-    countdownTimer = 3;
-    gameState = "countdown";
+    if (showFeedbackDuringCountdown) {
+      feedbackTimer = 3;
+      gameState = "feedback";
+      feedbackPopup.style.display = "flex";
+    } else {
+      countdownTimer = 3;
+      gameState = "countdown";
+    }
     inputBuffer.length = 0;
   }
   popupOverlay.style.display = "none";
@@ -664,6 +704,14 @@ function gameLoop(timestamp) {
     update(deltaTime);
     interpolate(deltaTime);
     draw();
+  } else if (gameState === "feedback") {
+    feedbackTimer -= deltaTime;
+    draw();
+    if (feedbackTimer <= 0) {
+      feedbackPopup.style.display = "none";
+      countdownTimer = 3;
+      gameState = "countdown";
+    }
   } else if (gameState === "countdown") {
     countdownTimer -= deltaTime;
     draw();
@@ -671,6 +719,7 @@ function gameLoop(timestamp) {
       gameState = "playing";
       lastMoveTime = performance.now();
       inputBuffer.length = 0;
+      showFeedbackDuringCountdown = false;
     }
   } else if (gameState === "paused") {
     draw();
