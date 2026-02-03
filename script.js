@@ -8,18 +8,37 @@ const foodTypes = [
   "plastic_container",
   "plastic_water_bottle",
   "soda_can",
+  "aluminum_foil",
+  "glass_jar",
+  "newspaper",
+  "paper_bag",
+  "tin_can",
   "broken_glass",
   "chip_bag",
   "juice_box",
   "plastic_bag",
   "plastic_straw",
   "plastic_utensil",
+  "broken_mug",
+  "candy_wrapper",
+  "disposable_cup",
+  "empty_bag_of_chips",
+  "gloves",
+  "pen",
+  "sponge",
   "banana_peel",
   "carrot",
   "dirty_napkin",
   "dirty_pizza_box",
   "egg_shell",
   "fish_bone",
+  "apple_core",
+  "bread_slice",
+  "cheese",
+  "chicken_leg",
+  "muffin",
+  "orange_peel",
+  "tea_bag",
 ];
 const winCondition = 25;
 
@@ -42,18 +61,37 @@ const foodIconPaths = {
   plastic_container: "assets/icons/recycle/plastic_container_icon.png",
   plastic_water_bottle: "assets/icons/recycle/plastic_water_bottle_icon.png",
   soda_can: "assets/icons/recycle/soda_can_icon.png",
+  aluminum_foil: "assets/icons/recycle/aluminum_foil_copy.png",
+  glass_jar: "assets/icons/recycle/glass_jar.png",
+  newspaper: "assets/icons/recycle/newspaper.png",
+  paper_bag: "assets/icons/recycle/paper_bag.png",
+  tin_can: "assets/icons/recycle/tin_can.png",
   broken_glass: "assets/icons/trash/broken_glass_icon_copy.png",
   chip_bag: "assets/icons/trash/chip_bag_icon_copy.png",
   juice_box: "assets/icons/trash/juice_box_icon.png",
   plastic_bag: "assets/icons/trash/plastic_bag_icon.png",
   plastic_straw: "assets/icons/trash/plastic_straw_icon_copy.png",
   plastic_utensil: "assets/icons/trash/plastic_utensil_icon_copy.png",
+  broken_mug: "assets/icons/trash/broken_mug.png",
+  candy_wrapper: "assets/icons/trash/candy_wrapper.png",
+  disposable_cup: "assets/icons/trash/disposable_cup.png",
+  empty_bag_of_chips: "assets/icons/trash/empty_bag_of_chips_png.png",
+  gloves: "assets/icons/trash/gloves_png.png",
+  pen: "assets/icons/trash/pen_png.png",
+  sponge: "assets/icons/trash/sponge.png",
   banana_peel: "assets/icons/compost/banana_peel_cartoon.png",
   carrot: "assets/icons/compost/carrot_icon.png",
   dirty_napkin: "assets/icons/compost/dirty_napkin_icon_copy.png",
   dirty_pizza_box: "assets/icons/compost/dirty_pizza_box_icon_copy.png",
   egg_shell: "assets/icons/compost/egg_shell_icon.png",
   fish_bone: "assets/icons/compost/fish_bone_scraps_copy.png",
+  apple_core: "assets/icons/compost/apple core.png",
+  bread_slice: "assets/icons/compost/bread_slice.png",
+  cheese: "assets/icons/compost/cheese.png",
+  chicken_leg: "assets/icons/compost/chicken_leg.png",
+  muffin: "assets/icons/compost/muffin.png",
+  orange_peel: "assets/icons/compost/orange_peel.png",
+  tea_bag: "assets/icons/compost/tea_bag.png",
 };
 
 const foodImages = {};
@@ -69,18 +107,37 @@ const foodDisplayNames = {
   plastic_container: "Plastic Container",
   plastic_water_bottle: "Water Bottle",
   soda_can: "Soda Can",
+  aluminum_foil: "Aluminum Foil",
+  glass_jar: "Glass Jar",
+  newspaper: "Newspaper",
+  paper_bag: "Paper Bag",
+  tin_can: "Tin Can",
   broken_glass: "Broken Glass",
   chip_bag: "Chip Bag",
   juice_box: "Juice Box",
   plastic_bag: "Plastic Bag",
   plastic_straw: "Plastic Straw",
   plastic_utensil: "Plastic Utensil",
+  broken_mug: "Broken Mug",
+  candy_wrapper: "Candy Wrapper",
+  disposable_cup: "Disposable Cup",
+  empty_bag_of_chips: "Empty Bag of Chips",
+  gloves: "Gloves",
+  pen: "Pen",
+  sponge: "Sponge",
   banana_peel: "Banana Peel",
   carrot: "Carrot",
   dirty_napkin: "Dirty Napkin",
   dirty_pizza_box: "Dirty Pizza Box",
   egg_shell: "Egg Shell",
   fish_bone: "Fish Bone",
+  apple_core: "Apple Core",
+  bread_slice: "Bread Slice",
+  cheese: "Cheese",
+  chicken_leg: "Chicken Leg",
+  muffin: "Muffin",
+  orange_peel: "Orange Peel",
+  tea_bag: "Tea Bag",
 };
 
 let snake = getInitialSnake();
@@ -96,7 +153,7 @@ let foods = [];
 let score = 0;
 let lives = 3;
 let lastMoveTime = 0;
-const moveInterval = 150;
+const moveInterval = 175;
 let eating = false;
 let eatProgress = 0;
 let eatenIndex = -1;
@@ -132,6 +189,11 @@ function isCorrectFood(name, gamemode) {
       "plastic_container",
       "plastic_water_bottle",
       "soda_can",
+      "aluminum_foil",
+      "glass_jar",
+      "newspaper",
+      "paper_bag",
+      "tin_can",
     ].includes(name);
   if (gamemode === "trash")
     return [
@@ -141,6 +203,13 @@ function isCorrectFood(name, gamemode) {
       "plastic_bag",
       "plastic_straw",
       "plastic_utensil",
+      "broken_mug",
+      "candy_wrapper",
+      "disposable_cup",
+      "empty_bag_of_chips",
+      "gloves",
+      "pen",
+      "sponge",
     ].includes(name);
   if (gamemode === "compost")
     return [
@@ -150,6 +219,13 @@ function isCorrectFood(name, gamemode) {
       "dirty_pizza_box",
       "egg_shell",
       "fish_bone",
+      "apple_core",
+      "bread_slice",
+      "cheese",
+      "chicken_leg",
+      "muffin",
+      "orange_peel",
+      "tea_bag",
     ].includes(name);
   return false;
 }
@@ -191,7 +267,6 @@ function getRandomFoods() {
   }
   return foods;
 }
-
 
 /**
  * Draws the snake with body and head
@@ -384,7 +459,6 @@ function update(deltaTime) {
           return;
         }
       } else {
-        
         showPopup(eatenFood);
         snake.pop();
         // Sync smoothSnake targets
@@ -565,9 +639,10 @@ document.addEventListener("keydown", (e) => {
 
   e.preventDefault();
 
-  const lastDir = inputBuffer.length > 0
-    ? inputBuffer[inputBuffer.length - 1]
-    : (nextDirection || direction);
+  const lastDir =
+    inputBuffer.length > 0
+      ? inputBuffer[inputBuffer.length - 1]
+      : nextDirection || direction;
 
   if (newDirection.x === -lastDir.x && newDirection.y === -lastDir.y) {
     return;
