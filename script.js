@@ -1,6 +1,22 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const gridSize = 75;
+const tileCountX = 12;
+const tileCountY = 12;
+let gridSize = 0;
+
+/**
+ * Updates canvas size to fit within viewport while maintaining aspect ratio
+ */
+function updateCanvasSize() {
+    const minDimension = Math.min(window.innerWidth, window.innerHeight);
+    const targetSize = Math.floor(minDimension * 0.9);
+    canvas.width = targetSize;
+    canvas.height = targetSize;
+    gridSize = targetSize / tileCountX;
+}
+
+updateCanvasSize();
+window.addEventListener("resize", updateCanvasSize);
 const foodTypes = [
   "cardboard_box",
   "paper",
@@ -42,8 +58,6 @@ const foodTypes = [
 const winCondition = 25;
 
 function getInitialSnake() {
-  const tileCountX = canvas.width / gridSize;
-  const tileCountY = canvas.height / gridSize;
   const startX = Math.floor(tileCountX / 4);
   const startY = Math.floor(tileCountY / 2);
   return [
@@ -252,8 +266,6 @@ function getRandomFoods() {
       wrongFoods[Math.floor(Math.random() * wrongFoods.length)],
     );
   }
-  const tileCountX = canvas.width / gridSize;
-  const tileCountY = canvas.height / gridSize;
   for (let name of selectedNames) {
     let newFood;
     do {
@@ -350,8 +362,6 @@ function drawSnake(segments) {
  * Renders the game scene including background, snake, food, and score
  */
 function draw() {
-  const tileCountX = canvas.width / gridSize;
-  const tileCountY = canvas.height / gridSize;
   for (let x = 0; x < tileCountX; x++) {
     for (let y = 0; y < tileCountY; y++) {
       ctx.fillStyle = (x + y) % 2 === 0 ? "#fff0d6" : "#f2e4cb";
@@ -511,13 +521,11 @@ function update(deltaTime) {
     }
 
     // Check wall collision
-    const currentTileCountX = canvas.width / gridSize;
-    const currentTileCountY = canvas.height / gridSize;
     if (
       head.x < 0 ||
-      head.x >= currentTileCountX ||
+      head.x >= tileCountX ||
       head.y < 0 ||
-      head.y >= currentTileCountY
+      head.y >= tileCountY
     ) {
       gameState = "gameover";
       gameOverMessageEl.textContent = "Game Over";
