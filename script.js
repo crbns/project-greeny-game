@@ -8,11 +8,11 @@ let gridSize = 0;
  * Updates canvas size to fit within viewport while maintaining aspect ratio
  */
 function updateCanvasSize() {
-    const minDimension = Math.min(window.innerWidth, window.innerHeight);
-    const targetSize = Math.floor(minDimension * 0.9);
-    canvas.width = targetSize;
-    canvas.height = targetSize;
-    gridSize = targetSize / tileCountX;
+  const minDimension = Math.min(window.innerWidth, window.innerHeight);
+  const targetSize = Math.floor(minDimension * 0.9);
+  canvas.width = targetSize;
+  canvas.height = targetSize;
+  gridSize = targetSize / tileCountX;
 }
 
 updateCanvasSize();
@@ -449,12 +449,12 @@ function update(deltaTime) {
     }
   }
 
-    if (performance.now() - lastMoveTime >= moveInterval) {
-        lastMoveTime = performance.now();
-        // Consume the next queued direction if available
-        if (inputQueue.length > 0) {
-            direction = inputQueue.shift();
-        }
+  if (performance.now() - lastMoveTime >= moveInterval) {
+    lastMoveTime = performance.now();
+    // Consume the next queued direction if available
+    if (inputQueue.length > 0) {
+      direction = inputQueue.shift();
+    }
     let oldTail = snake[snake.length - 1];
     const head = {
       x: snake[0].x + direction.x,
@@ -599,8 +599,8 @@ continueBtn.addEventListener("click", () => {
     targetY: segment.y,
   }));
   direction = { x: 1, y: 0 };
-    inputQueue = [];
-    foods = [];
+  inputQueue = [];
+  foods = [];
   score = 0;
   lives = 3;
   eating = false;
@@ -625,76 +625,76 @@ yesBtn.addEventListener("click", () => {
     gameOverMessageEl.textContent = "Game Over";
     finalScoreEl.textContent = score;
     overlay.style.display = "flex";
+  } else {
+    if (showFeedbackDuringCountdown) {
+      feedbackTimer = 3;
+      gameState = "feedback";
+      feedbackPopup.style.display = "flex";
     } else {
-        if (showFeedbackDuringCountdown) {
-            feedbackTimer = 3;
-            gameState = "feedback";
-            feedbackPopup.style.display = "flex";
-        } else {
-            countdownTimer = 3;
-            gameState = "countdown";
-        }
+      countdownTimer = 3;
+      gameState = "countdown";
     }
-    popupOverlay.style.display = "none";
+  }
+  popupOverlay.style.display = "none";
 });
 
 noBtn.addEventListener("click", () => {
-    foods = getRandomFoods();
-    const wasCorrect = noBtn.dataset.correct === "true";
-    if (!wasCorrect) {
-        lives--;
-        showFeedbackDuringCountdown = true;
-        feedbackMessageEl.textContent = `That item belongs in the ${lastCorrectGamemode} bin!`;
-        lifeLostMessageEl.textContent = "You lost a life!";
-    }
-    if (lives <= 0) {
-        gameState = "gameover";
-        gameOverMessageEl.textContent = "Game Over";
-        finalScoreEl.textContent = score;
-        overlay.style.display = "flex";
+  foods = getRandomFoods();
+  const wasCorrect = noBtn.dataset.correct === "true";
+  if (!wasCorrect) {
+    lives--;
+    showFeedbackDuringCountdown = true;
+    feedbackMessageEl.textContent = `That item belongs in the ${lastCorrectGamemode} bin!`;
+    lifeLostMessageEl.textContent = "You lost a life!";
+  }
+  if (lives <= 0) {
+    gameState = "gameover";
+    gameOverMessageEl.textContent = "Game Over";
+    finalScoreEl.textContent = score;
+    overlay.style.display = "flex";
+  } else {
+    if (showFeedbackDuringCountdown) {
+      feedbackTimer = 3;
+      gameState = "feedback";
+      feedbackPopup.style.display = "flex";
     } else {
-        if (showFeedbackDuringCountdown) {
-            feedbackTimer = 3;
-            gameState = "feedback";
-            feedbackPopup.style.display = "flex";
-        } else {
-            countdownTimer = 3;
-            gameState = "countdown";
-        }
+      countdownTimer = 3;
+      gameState = "countdown";
     }
-    popupOverlay.style.display = "none";
+  }
+  popupOverlay.style.display = "none";
 });
 
 document.addEventListener("keydown", (e) => {
-    if (gameState !== "playing") return;
+  if (gameState !== "playing") return;
 
-    let newDirection = null;
-    if (e.key === "ArrowUp") newDirection = { x: 0, y: -1 };
-    else if (e.key === "ArrowDown") newDirection = { x: 0, y: 1 };
-    else if (e.key === "ArrowLeft") newDirection = { x: -1, y: 0 };
-    else if (e.key === "ArrowRight") newDirection = { x: 1, y: 0 };
+  let newDirection = null;
+  if (e.key === "ArrowUp") newDirection = { x: 0, y: -1 };
+  else if (e.key === "ArrowDown") newDirection = { x: 0, y: 1 };
+  else if (e.key === "ArrowLeft") newDirection = { x: -1, y: 0 };
+  else if (e.key === "ArrowRight") newDirection = { x: 1, y: 0 };
 
-    if (!newDirection) return;
+  if (!newDirection) return;
 
-    e.preventDefault();
+  e.preventDefault();
 
-    // Get the last direction in the queue, or current direction
-    const lastDir = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : direction;
+  // Get the last direction in the queue, or current direction
+  const lastDir = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : direction;
 
-    // Prevent 180-degree turns
-    if (newDirection.x === -lastDir.x && newDirection.y === -lastDir.y) {
-        return;
-    }
+  // Prevent 180-degree turns
+  if (newDirection.x === -lastDir.x && newDirection.y === -lastDir.y) {
+    return;
+  }
 
-    // Prevent duplicate directions
-    if (newDirection.x === lastDir.x && newDirection.y === lastDir.y) {
-        return;
-    }
+  // Prevent duplicate directions
+  if (newDirection.x === lastDir.x && newDirection.y === lastDir.y) {
+    return;
+  }
 
-    // Only buffer ONE input (Google Snake style)
-    if (inputQueue.length < 1) {
-        inputQueue.push(newDirection);
-    }
+  // Only buffer ONE input (Google Snake style)
+  if (inputQueue.length < 1) {
+    inputQueue.push(newDirection);
+  }
 });
 
 let lastUpdateTime = 0;
@@ -718,9 +718,9 @@ function gameLoop(timestamp) {
     countdownTimer -= deltaTime;
     draw();
     if (countdownTimer <= 0) {
-        gameState = "playing";
-        lastMoveTime = performance.now();
-        showFeedbackDuringCountdown = false;
+      gameState = "playing";
+      lastMoveTime = performance.now();
+      showFeedbackDuringCountdown = false;
     }
   } else if (gameState === "paused") {
     draw();
