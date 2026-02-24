@@ -669,10 +669,10 @@ document.addEventListener("keydown", (e) => {
   if (gameState !== "playing") return;
 
   let newDirection = null;
-  if (e.key === "ArrowUp") newDirection = { x: 0, y: -1 };
-  else if (e.key === "ArrowDown") newDirection = { x: 0, y: 1 };
-  else if (e.key === "ArrowLeft") newDirection = { x: -1, y: 0 };
-  else if (e.key === "ArrowRight") newDirection = { x: 1, y: 0 };
+  if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") newDirection = { x: 0, y: -1 };
+  else if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") newDirection = { x: 0, y: 1 };
+  else if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") newDirection = { x: -1, y: 0 };
+  else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") newDirection = { x: 1, y: 0 };
 
   if (!newDirection) return;
 
